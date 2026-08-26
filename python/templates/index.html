@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lit Review QA</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2e37;
+    --text: #e8e8ea;
+    --muted: #9aa0ab;
+    --include: #2fae5c;
+    --exclude: #d64545;
+    --maybe: #d6a445;
+    --accent: #5a8dee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 80px;
+  }
+  .container { width: 100%; max-width: 780px; }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+  .meta {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 22px;
+    line-height: 1.3;
+    margin: 0 0 16px;
+  }
+  .badges { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .badge {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .badge .label { color: var(--muted); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+  .badge .value { font-weight: 600; font-size: 15px; }
+  .val-include { color: var(--include); }
+  .val-exclude { color: var(--exclude); }
+  .val-maybe { color: var(--maybe); }
+  .val-none { color: var(--muted); }
+  .section-label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .abstract {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+  }
+  details {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+  }
+  details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  details .reasoning-body { margin-top: 10px; line-height: 1.5; font-size: 14px; }
+  .controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #232733;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.06s ease, background 0.15s ease;
+  }
+  button:hover { background: #2a2f3d; }
+  button:active { transform: scale(0.96); }
+  button.exclude { border-color: var(--exclude); }
+  button.maybe { border-color: var(--maybe); }
+  button.include { border-color: var(--include); }
+  kbd {
+    background: #0000004d;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 11px;
+    margin-left: 6px;
+  }
+  .hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .flash {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translate(-50%, -10px);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .flash.show { opacity: 1; transform: translate(-50%, 0); }
+  .flash.include { background: var(--include); color: #08210f; }
+  .flash.exclude { background: var(--exclude); color: #2a0a0a; }
+  .flash.maybe { background: var(--maybe); color: #2a1e05; }
+  .flash.clear { background: var(--muted); color: #111; }
+  .filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filters label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 6px;
+  }
+  .filters select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .empty-state {
+    color: var(--muted);
+    text-align: center;
+    padding: 60px 0;
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="filters">
+    <div>
+      <label for="filter-classification">Classification</label>
+      <select id="filter-classification">
+        <option value="">Any</option>
+      </select>
+    </div>
+    <div>
+      <label for="filter-graded">Graded</label>
+      <select id="filter-graded">
+        <option value="">Any</option>
+        <option value="no">Not yet graded</option>
+        <option value="yes">Already graded</option>
+      </select>
+    </div>
+    <div>
+      <label for="filter-disagreement">Vs. AI</label>
+      <select id="filter-disagreement">
+        <option value="">Any</option>
+        <option value="yes">I disagreed with the AI</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="meta" id="meta"></div>
+
+  <div id="paper-view">
+    <h1 id="title"></h1>
+
+    <div class="badges">
+      <div class="badge"><span class="label">AI decision</span><span class="value" id="ai-decision"></span></div>
+      <div class="badge"><span class="label">QA agreement</span><span class="value" id="qa-decision"></span></div>
+      <div class="badge"><span class="label">Your decision</span><span class="value" id="user-decision"></span></div>
+    </div>
+
+    <div class="section-label">Abstract</div>
+    <div class="abstract" id="abstract"></div>
+
+    <details>
+      <summary>AI reasoning / source</summary>
+      <div class="reasoning-body">
+        <div><strong>Source:</strong> <span id="source"></span></div>
+        <div style="margin-top:6px;"><strong>Reasoning:</strong> <span id="reasoning"></span></div>
+      </div>
+    </details>
+  </div>
+
+  <div id="empty-view" class="empty-state" style="display:none;">No items match the current filters.</div>
+</div>
+
+<div class="controls">
+  <button class="exclude" onclick="decide('EXCLUDE')">Exclude <kbd>A</kbd></button>
+  <button class="maybe" onclick="decide('MAYBE')">Maybe <kbd>W</kbd></button>
+  <button onclick="decide(null)">Clear <kbd>S</kbd></button>
+  <button class="include" onclick="decide('INCLUDE')">Include <kbd>D</kbd></button>
+  <button onclick="go(1)">Next <kbd>Space</kbd></button>
+  <button onclick="go(-1)">Prev <kbd>P</kbd></button>
+</div>
+<div class="flash" id="flash"></div>
+
+<script>
+let state = { idx: 0, total: 0, id: null };
+let filters = { classification: '', graded: '', disagreement: '' };
+
+function valClass(v) {
+  if (v === 'INCLUDE') return 'val-include';
+  if (v === 'EXCLUDE') return 'val-exclude';
+  if (v === 'MAYBE') return 'val-maybe';
+  return 'val-none';
+}
+
+function filterQuery() {
+  const params = new URLSearchParams();
+  if (filters.classification) params.set('classification', filters.classification);
+  if (filters.graded) params.set('graded', filters.graded);
+  if (filters.disagreement) params.set('disagreement', filters.disagreement);
+  return params.toString();
+}
+
+function render(data) {
+  const paperView = document.getElementById('paper-view');
+  const emptyView = document.getElementById('empty-view');
+
+  if (data.empty || data.total === 0) {
+    paperView.style.display = 'none';
+    emptyView.style.display = 'block';
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('meta').textContent = '0 items match the current filters';
+    state.total = 0;
+    state.id = null;
+    return;
+  }
+
+  paperView.style.display = '';
+  emptyView.style.display = 'none';
+
+  state.idx = data.idx;
+  state.total = data.total;
+  state.id = data.id;
+
+  document.getElementById('progress-fill').style.width =
+    (data.total ? (data.filtered_reviewed_count / data.total) * 100 : 0) + '%';
+  document.getElementById('meta').textContent =
+    `Item ${data.idx + 1} of ${data.total}  |  ${data.filtered_reviewed_count} reviewed (in filter)  |  paper id ${data.id}`;
+  document.getElementById('title').textContent = data.title;
+  document.getElementById('abstract').textContent = data.abstract;
+  document.getElementById('source').textContent = data.source;
+  document.getElementById('reasoning').textContent = data.reasoning;
+
+  const ai = document.getElementById('ai-decision');
+  ai.textContent = data.decision || '—';
+  ai.className = 'value ' + valClass(data.decision);
+
+  const qa = document.getElementById('qa-decision');
+  qa.textContent = data.qa_decision || '—';
+  qa.className = 'value';
+
+  const ud = document.getElementById('user-decision');
+  ud.textContent = data.user_decision || '—';
+  ud.className = 'value ' + valClass(data.user_decision);
+}
+
+async function loadIdx(idx) {
+  const res = await fetch(`/api/paper/${idx}?${filterQuery()}`);
+  const data = await res.json();
+  render(data);
+}
+
+async function decide(decision) {
+  if (state.id === null) return;
+  const targetIdx = state.idx; // same slot: item after this one shifts into it once filtered out
+  const res = await fetch('/api/decide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: state.id,
+      decision: decision,
+      classification: filters.classification || null,
+      graded: filters.graded || null,
+      disagreement: filters.disagreement || null,
+    })
+  });
+  const data = await res.json();
+  flash(decision);
+  if (decision !== null) {
+    setTimeout(() => loadIdx(targetIdx), 120);
+  } else {
+    render(data);
+  }
+}
+
+function flash(decision) {
+  const el = document.getElementById('flash');
+  const map = { INCLUDE: 'include', EXCLUDE: 'exclude', MAYBE: 'maybe' };
+  const cls = map[decision] || 'clear';
+  const label = decision || 'CLEARED';
+  el.textContent = label;
+  el.className = 'flash show ' + cls;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 350);
+}
+
+function go(delta) {
+  const next = Math.max(0, Math.min(state.idx + delta, state.total - 1));
+  loadIdx(next);
+}
+
+document.addEventListener('keydown', (e) => {
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  switch (e.key) {
+    case 'a': case 'A': decide('EXCLUDE'); e.preventDefault(); break;
+    case 'w': case 'W': decide('MAYBE'); e.preventDefault(); break;
+    case 's': case 'S': decide(null); e.preventDefault(); break;
+    case 'd': case 'D': decide('INCLUDE'); e.preventDefault(); break;
+    case ' ': go(1); e.preventDefault(); break;
+    case 'p': case 'P': go(-1); e.preventDefault(); break;
+  }
+});
+
+async function initFilters() {
+  const res = await fetch('/api/meta');
+  const meta = await res.json();
+  const sel = document.getElementById('filter-classification');
+  for (const c of meta.classifications) {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    filters.classification = sel.value;
+    loadIdx(0);
+  });
+  const gradedSel = document.getElementById('filter-graded');
+  gradedSel.addEventListener('change', () => {
+    filters.graded = gradedSel.value;
+    loadIdx(0);
+  });
+  const disagreementSel = document.getElementById('filter-disagreement');
+  disagreementSel.addEventListener('change', () => {
+    filters.disagreement = disagreementSel.value;
+    loadIdx(0);
+  });
+}
+
+initFilters();
+loadIdx(0);
+</script>
+</body>
+</html>

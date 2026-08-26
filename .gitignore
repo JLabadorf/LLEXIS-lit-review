@@ -1,0 +1,20 @@
+/llexis-lit-review
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated/data artifacts
+python/reasoning_results.csv
+python/optimizer_log.jsonl
+python/newly_discovered_pmids.txt
+
+# OS/editor
+.DS_Store
+Thumbs.db

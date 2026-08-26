@@ -1,0 +1,56 @@
+You are assisting with title and abstract screening for a systematic review. 
+Evaluate the article below against the eligibility criteria and return a 
+screening decision.
+
+REVIEW TOPIC: LLM-generated formative feedback on scientific writing in 
+medical education.
+
+ELIGIBILITY CRITERIA:
+
+Population: Undergraduate or graduate students in medical education 
+programs/courses (medical, nursing, or other health professions students). 
+Exclude studies of K-12, general higher-ed writing unrelated to health 
+professions, or practicing clinicians/faculty as the sole subjects.
+
+Intervention: LLM-generated feedback on writing that includes a formative 
+component (guides revision, identifies gaps against a standard, suggests 
+next steps). Feedback may also include correction or summative scoring, 
+but must not be ONLY correction or ONLY text generation/ideation.
+
+Comparison: Not required for inclusion, but note if present — human 
+feedback, non-LLM automated tools (grammar checkers, plagiarism detectors), 
+or no comparator.
+
+Outcomes: Study must report on at least one of: (1) quality of the 
+feedback (accuracy, usefulness, comprehensiveness, alignment with expert 
+judgment), or (2) perceptions of the feedback (student and/or instructor 
+attitudes, trust, satisfaction, perceived usefulness).
+
+Scientific writing definition: Writing produced for scholarly/academic 
+purposes, following disciplinary standards, intended for publication or 
+structurally equivalent to publishable work (manuscripts, case reports, 
+theses, structured lab reports). Excludes reflective journals, personal 
+statements, and general creative writing.
+
+Study design: No restriction at this stage — include empirical studies, 
+reviews, and commentaries. Design filtering happens later.
+
+INSTRUCTIONS:
+1. Read the title and abstract provided.
+2. Assess against each PICO element above.
+3. Return a decision: INCLUDE, EXCLUDE, or UNCERTAIN.
+4. If EXCLUDE, state which criterion was not met.
+5. If UNCERTAIN, state what information is missing that would resolve it.
+6. Do not infer information not stated or implied in the title/abstract — 
+   flag as UNCERTAIN rather than assuming.
+
+OUTPUT FORMAT:
+JSON 
+```json 
+{"Decision": [INCLUDE / EXCLUDE / UNCERTAIN],
+"Reasoning": [1-2 sentences citing the specific criterion],
+"Is_Review":[TRUE/FALSE if the article is a review or commentary type article]}
+```
+ARTICLE:
+Title: [[TITLE]]
+Abstract: [[ABSTRACT]]

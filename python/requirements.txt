@@ -1,0 +1,7 @@
+biopython
+boto3
+matplotlib
+pandas
+ipykernel
+Flask
+streamlit
